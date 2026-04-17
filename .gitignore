@@ -1,0 +1,13 @@
+# dépendances
+node_modules/
+
+# builds electron
+dist/
+out/
+build/
+
+# executables
+*.exe
+
+# logs
+*.log

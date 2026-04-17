@@ -1,0 +1,50 @@
+{
+  "name": "minios",
+  "version": "1.0.1",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.minios.app",
+    "productName": "MiniOS",
+    "compression": "maximum",
+    "asar": true,
+    "publish": {
+      "provider": "github",
+      "owner": "damien1303",
+      "repo": "MiniOS"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^41.2.1",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.3",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-updater": "^6.8.3"
+  }
+}

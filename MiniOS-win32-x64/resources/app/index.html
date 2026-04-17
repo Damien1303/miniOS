@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MiniOS 🧠</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #1e1e2f;
+      color: white;
+    }
+
+    .top {
+      padding: 10px;
+      background: #2c2c3f;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 10px;
+    }
+
+    .note {
+      background: white;
+      color: black;
+      margin-top: 10px;
+      padding: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top">
+    🧠 MiniOS
+    <button onclick="newWindow()">➕ fenêtre</button>
+  </div>
+
+  <div class="content">
+    <input id="text" placeholder="note..." />
+    <button onclick="add()">Ajouter</button>
+
+    <div id="notes"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
