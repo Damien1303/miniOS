@@ -2,6 +2,11 @@ const { ipcRenderer } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
+
+function openGame() {
+  ipcRenderer.send("open-game");
+}
+
 const SAVE_PATH = path.join(process.env.APPDATA || process.env.HOME || __dirname, "minios-notes.json");
 const $ = (id) => document.getElementById(id);
 
