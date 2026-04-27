@@ -40,7 +40,26 @@ function renderScreen() {
     $result.className = "screen-result";
   }
 }
+function animateResult() {
+  const el = document.getElementById("result");
+  el.classList.add("updated");
+  setTimeout(() => el.classList.remove("updated"), 120);
+}
+function updateClock() {
+  const el = document.getElementById("clock");
+  if (!el) return;
 
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, "0");
+  const m = String(now.getMinutes()).padStart(2, "0");
+
+  el.textContent = `${h}:${m}`;
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  updateClock();
+  setInterval(updateClock, 1000);
+});
 function formatNum(n) {
   if (n === "Err") return "Division / 0";
   if (typeof n === "number") {

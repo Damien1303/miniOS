@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>MiniOS Game</title>
+
+<style>
+:root{
+  --bg:#0a0a0c;
+  --surface:#111116;
+  --border:#222230;
+  --text:#e8e8f0;
+  --accent:#7c6dfa;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:sans-serif;
+  overflow:hidden;
+}
+
+/* ───── TOP BAR ───── */
+.titlebar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  -webkit-app-region:drag;
+}
+
+.close{
+  -webkit-app-region:no-drag;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  border:1px solid rgba(255,80,80,0.4);
+  background:rgba(255,80,80,0.1);
+  color:#ff6b6b;
+  cursor:pointer;
+}
+
+/* ───── HUD ───── */
+.hud{
+  display:flex;
+  justify-content:space-around;
+  margin:10px 0;
+  font-weight:bold;
+  color:var(--accent);
+}
+
+/* ───── GAME AREA ───── */
+#gameArea{
+  margin:20px;
+  height:420px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* IMPORTANT FIX HITBOX */
+#box{
+  width:60px;
+  height:60px;
+  background:linear-gradient(135deg,#7c6dfa,#4f3fd4);
+  border-radius:12px;
+  position:absolute;
+  cursor:pointer;
+  z-index:10;
+  user-select:none;
+}
+
+/* overlay fin */
+#endScreen{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  font-size:24px;
+}
+
+#endScreen button{
+  margin-top:15px;
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+}
+/* +1 pop flottant */
+.float-plus {
+  position: absolute;
+  font-weight: 900;
+  font-size: 22px;
+  color: #ffffff;
+  text-shadow:
+    0 0 6px #7c6dfa,
+    0 0 12px #7c6dfa,
+    0 0 20px #a895ff;
+  pointer-events: none;
+  z-index: 999;
+
+  animation: popFloat 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes popFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.4);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(-35px) scale(1.1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.9);
+  }
+}
+
+@keyframes floatUp {
+  0% { opacity:1; transform:translateY(0) scale(1); }
+  100% { opacity:0; transform:translateY(-40px) scale(1.4); }
+}
+
+/* disparition fluide du cube */
+.fade-out {
+  transition:0.4s ease;
+  opacity:0;
+  transform:scale(0.3);
+}
+</style>
+</head>
+
+<body>
+
+<div class="titlebar">
+  <div>🎮 MiniOS Game</div>
+  <button class="close" id="closeBtn">✕</button>
+</div>
+
+<div class="hud">
+  <div>Score: <span id="score">0</span></div>
+  <div>Temps: <span id="time">30</span>s</div>
+</div>
+
+<div id="gameArea">
+  <div id="box"></div>
+
+  <div id="endScreen">
+    <div id="finalText">Game Over</div>
+    <button onclick="restart()">Rejouer</button>
+  </div>
+</div>
+
+<script>
+const { ipcRenderer } = require("electron");
+
+const box = document.getElementById("box");
+const area = document.getElementById("gameArea");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const endScreen = document.getElementById("endScreen");
+
+let score = 0;
+let time = 30;
+let speed = 900;
+let running = true;
+
+/* ───── MOVE BOX ───── */
+function moveBox(){
+  if(!running) return;
+
+  const maxX = area.clientWidth - 60;
+  const maxY = area.clientHeight - 60;
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
+
+  box.style.left = x + "px";
+  box.style.top = y + "px";
+}
+
+/* ───── +1 STYLÉ ───── */
+function showPlusOne(x, y){
+  const el = document.createElement("div");
+  el.className = "float-plus";
+  el.innerText = "+1";
+
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+
+  area.appendChild(el);
+
+  setTimeout(() => el.remove(), 600);
+}
+
+/* ───── HIT ───── */
+function hit(e){
+  if(!running) return;
+
+  score++;
+  scoreEl.innerText = score;
+
+  // position effet +1 au clic
+  const rect = area.getBoundingClientRect();
+  showPlusOne(e.clientX - rect.left, e.clientY - rect.top);
+
+  speed = Math.max(350, speed - 15);
+
+  moveBox();
+}
+
+/* ───── LOOP ───── */
+function loop(){
+  if(!running) return;
+  moveBox();
+  setTimeout(loop, speed);
+}
+
+/* ───── TIMER ───── */
+function timer(){
+  const t = setInterval(() => {
+    if(!running) return clearInterval(t);
+
+    time--;
+    timeEl.innerText = time;
+
+    if(time <= 0){
+      endGame();
+      clearInterval(t);
+    }
+  }, 1000);
+}
+
+/* ───── FIN DE JEU PROPRE ───── */
+function endGame(){
+  running = false;
+
+  // fade cube + remove visuel
+  box.classList.add("fade-out");
+
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 400);
+
+  endScreen.style.display = "flex";
+  document.getElementById("finalText").innerText =
+    "Game Over - Score: " + score;
+}
+
+/* ───── RESTART ───── */
+function restart(){
+  score = 0;
+  time = 30;
+  speed = 900;
+  running = true;
+
+  scoreEl.innerText = 0;
+  timeEl.innerText = 30;
+
+  box.style.display = "block";
+  box.classList.remove("fade-out");
+
+  endScreen.style.display = "none";
+
+  moveBox();
+  loop();
+  timer();
+}
+
+/* ───── CLICK FIX ───── */
+box.addEventListener("mousedown", (e) => {
+  e.stopPropagation();
+  hit(e);
+});
+
+/* ───── CLOSE ───── */
+document.getElementById("closeBtn").addEventListener("click", () => {
+  ipcRenderer.send("close-game");
+});
+
+/* START */
+moveBox();
+loop();
+timer();
+
+</script>
+
+</body>
+</html>

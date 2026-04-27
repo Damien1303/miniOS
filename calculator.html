@@ -1,412 +1,250 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculatrice</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0c;
-      --surface: #111116;
-      --surface2: #18181f;
-      --border: #222230;
-      --border2: #2e2e40;
-      --text: #e8e8f0;
-      --muted: #5a5a72;
-      --accent: #7c6dfa;
-      --accent2: #a895ff;
-      --green: #3dd68c;
-      --red: #ff5e5e;
-      --yellow: #f0c040;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniOS Calc</title>
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700&display=swap" rel="stylesheet">
 
-    body {
-      font-family: 'Syne', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-    }
+<style>
+:root {
+  --bg:#0a0a0c;
+  --surface:#111116;
+  --border:#222230;
+  --text:#e8e8f0;
+  --muted:#5a5a72;
+  --accent:#7c6dfa;
+  --accent2:#a895ff;
+}
+#gameArea{
+  margin:20px;
+  height:420px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+}
 
-    /* ── Titlebar ── */
-    .titlebar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      -webkit-app-region: drag;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Syne;
+  margin:0;
+}
 
-    .titlebar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+*{margin:0;padding:0;box-sizing:border-box}
 
-    .app-icon {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, var(--accent), #4f3fd4);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
+body{
+  font-family:Syne;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  overflow:hidden;
+}
 
-    .app-name {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--text);
-    }
+/* TITLEBAR */
+.titlebar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  -webkit-app-region:drag;
+}
 
-    .close-btn {
-      -webkit-app-region: no-drag;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,94,94,0.3);
-      background: rgba(255,94,94,0.08);
-      color: var(--red);
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, border-color 0.15s;
-    }
+.left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-    .close-btn:hover {
-      background: rgba(255,94,94,0.18);
-      border-color: rgba(255,94,94,0.6);
-    }
+.icon{
+  width:26px;height:26px;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#4f3fd4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-    /* ── Main layout ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      overflow: hidden;
-    }
+.clock{
+  font-family:DM Mono;
+  font-size:11px;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+}
 
-    /* ── Display screen ── */
-    .screen {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 20px 20px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+.close{
+  -webkit-app-region:no-drag;
+  width:26px;height:26px;
+  border-radius:8px;
+  border:1px solid rgba(255,94,94,0.3);
+  background:rgba(255,94,94,0.08);
+  color:var(--red);
+  cursor:pointer;
+}
 
-    .screen-expr {
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      color: var(--muted);
-      min-height: 16px;
-      letter-spacing: 0.03em;
-    }
+/* SCREEN */
+.screen{
+  padding:20px;
+  border-bottom:1px solid var(--border);
+}
 
-    .screen-result {
-      font-family: 'DM Mono', monospace;
-      font-size: 36px;
-      font-weight: 500;
-      color: var(--text);
-      letter-spacing: -0.02em;
-      min-height: 48px;
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+.screen-expr{
+  font-family:DM Mono;
+  font-size:12px;
+  color:var(--muted);
+}
 
-    .screen-result.error {
-      color: var(--red);
-      font-size: 22px;
-    }
+.screen-result{
+  font-family:DM Mono;
+  font-size:38px;
+  margin-top:6px;
+}
 
-    .screen-result.success {
-      color: var(--green);
-    }
+/* OP ROW */
+.op-row{
+  display:flex;
+  border-bottom:1px solid var(--border);
+}
 
-    /* ── Op selector ── */
-    .op-row {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-    }
+.op-tab{
+  flex:1;
+  padding:10px;
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+}
 
-    .op-tab {
-      flex: 1;
-      padding: 10px 4px;
-      text-align: center;
-      font-family: 'DM Mono', monospace;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      border-bottom: 2px solid transparent;
-      transition: color 0.15s, border-color 0.15s, background 0.15s;
-      position: relative;
-      top: 1px;
-    }
+.op-tab.active{
+  color:var(--accent2);
+  border-bottom:2px solid var(--accent);
+}
 
-    .op-tab:hover {
-      color: var(--text);
-      background: var(--surface2);
-    }
+/* KEYPAD */
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(5,1fr);
+  gap:1px;
+  background:var(--border);
+  height:calc(100vh - 200px);
+}
 
-    .op-tab.active {
-      color: var(--accent2);
-      border-bottom-color: var(--accent);
-      background: rgba(124,109,250,0.06);
-    }
+.key{
+  background:var(--surface);
+  border:none;
+  color:var(--text);
+  font-size:18px;
+  cursor:pointer;
+}
 
-    /* ── Keypad ── */
-    .keypad {
-      flex: 1;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(5, 1fr);
-      gap: 1px;
-      background: var(--border);
-      overflow: hidden;
-    }
+.key:hover{background:var(--surface2)}
 
-    .key {
-      background: var(--surface);
-      border: none;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 18px;
-      font-weight: 400;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.1s, color 0.1s, transform 0.08s;
-      position: relative;
-      overflow: hidden;
-    }
+.equals{
+  background:var(--accent);
+  color:white;
+  font-weight:700;
+  grid-row:span 2;
+}
 
-    .key:active {
-      transform: scale(0.94);
-      background: var(--surface2);
-    }
+/* HISTORY */
+.history-strip{
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  overflow-x:auto;
+}
 
-    .key:hover {
-      background: var(--surface2);
-    }
+.history-label{
+  font-size:10px;
+  color:var(--muted);
+}
 
-    .key.num {
-      font-size: 20px;
-      font-weight: 500;
-    }
+.history-item{
+  font-family:DM Mono;
+  font-size:11px;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  white-space:nowrap;
+}
 
-    .key.op-key {
-      background: rgba(124,109,250,0.07);
-      color: var(--accent2);
-      font-size: 20px;
-    }
-
-    .key.op-key:hover {
-      background: rgba(124,109,250,0.15);
-    }
-
-    .key.action {
-      background: rgba(124,109,250,0.12);
-      color: var(--accent2);
-      font-size: 13px;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-    }
-
-    .key.action:hover {
-      background: rgba(124,109,250,0.2);
-    }
-
-    .key.clear {
-      background: rgba(240,192,64,0.07);
-      color: var(--yellow);
-    }
-
-    .key.clear:hover {
-      background: rgba(240,192,64,0.15);
-    }
-
-    .key.equals {
-      background: var(--accent);
-      color: #fff;
-      font-size: 24px;
-      font-weight: 700;
-      grid-row: span 2;
-    }
-
-    .key.equals:hover {
-      background: #8f80ff;
-    }
-
-    .key.equals:active {
-      background: #6a5bf0;
-      transform: scale(0.95);
-    }
-
-    /* ripple */
-    .key::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-
-    .key:active::after {
-      opacity: 1;
-    }
-
-    /* ── History strip ── */
-    .history-strip {
-      border-top: 1px solid var(--border);
-      padding: 8px 16px;
-      min-height: 38px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      background: var(--bg);
-    }
-
-    .history-strip::-webkit-scrollbar { display: none; }
-
-    .history-label {
-      font-size: 10px;
-      color: var(--muted);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
-    .history-item {
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-      cursor: pointer;
-      padding: 3px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
-    }
-
-    .history-item:hover {
-      color: var(--text);
-      border-color: var(--border2);
-    }
-
-    .copy-flash {
-      position: fixed;
-      bottom: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-      z-index: 100;
-    }
-
-    .copy-flash.show {
-      opacity: 1;
-    }
-  </style>
+.history-item:hover{
+  color:white;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Titlebar -->
-  <div class="titlebar">
-    <div class="titlebar-left">
-      <div class="app-icon">🧮</div>
-      <span class="app-name">CALCULATRICE</span>
-    </div>
-    <button class="close-btn" id="closeCalc">✕</button>
+<!-- TITLE -->
+<div class="titlebar">
+  <div class="left">
+    <div class="icon">🧮</div>
+    <div>MiniOS Calc</div>
+    <div class="clock" id="clock">00:00</div>
   </div>
+  <button class="close" id="closeCalc">✕</button>
+</div>
 
-  <div class="main">
+<!-- SCREEN -->
+<div class="screen">
+  <div class="screen-expr" id="expr">—</div>
+  <div class="screen-result" id="result">0</div>
+</div>
 
-    <!-- Screen -->
-    <div class="screen">
-      <div class="screen-expr" id="expr">—</div>
-      <div class="screen-result" id="result">0</div>
-    </div>
+<!-- OPS -->
+<div class="op-row" id="opRow">
+  <button class="op-tab active" data-op="+">+</button>
+  <button class="op-tab" data-op="−">−</button>
+  <button class="op-tab" data-op="×">×</button>
+  <button class="op-tab" data-op="÷">÷</button>
+  <button class="op-tab" data-op="%">%</button>
+</div>
 
-    <!-- Op tabs -->
-    <div class="op-row" id="opRow">
-      <button class="op-tab active" data-op="+">+</button>
-      <button class="op-tab" data-op="−">−</button>
-      <button class="op-tab" data-op="×">×</button>
-      <button class="op-tab" data-op="÷">÷</button>
-      <button class="op-tab" data-op="%">%</button>
-    </div>
+<!-- KEYS -->
+<div class="keypad" id="keypad">
 
-    <!-- Keypad -->
-    <div class="keypad" id="keypad">
-      <!-- Row 1 -->
-      <button class="key action" data-action="swap">↔</button>
-      <button class="key action" data-action="copy">⎘</button>
-      <button class="key clear" data-action="clear">C</button>
-      <!-- Row 2 -->
-      <button class="key num" data-digit="7">7</button>
-      <button class="key num" data-digit="8">8</button>
-      <button class="key num" data-digit="9">9</button>
-      <!-- Row 3 -->
-      <button class="key num" data-digit="4">4</button>
-      <button class="key num" data-digit="5">5</button>
-      <button class="key num" data-digit="6">6</button>
-      <!-- Row 4 -->
-      <button class="key num" data-digit="1">1</button>
-      <button class="key num" data-digit="2">2</button>
-      <button class="key num" data-digit="3">3</button>
-      <!-- Row 5 -->
-      <button class="key num" data-digit="0" style="grid-column: span 1">0</button>
-      <button class="key num" data-digit=".">.</button>
-      <button class="key equals" data-action="calc">=</button>
-    </div>
+  <button class="key action" data-action="swap">↔</button>
+  <button class="key action" data-action="copy">⎘</button>
+  <button class="key clear" data-action="clear">C</button>
 
-    <!-- History -->
-    <div class="history-strip" id="historyStrip">
-      <span class="history-label">hist</span>
-    </div>
+  <button class="key" data-digit="7">7</button>
+  <button class="key" data-digit="8">8</button>
+  <button class="key" data-digit="9">9</button>
 
-  </div>
+  <button class="key" data-digit="4">4</button>
+  <button class="key" data-digit="5">5</button>
+  <button class="key" data-digit="6">6</button>
 
-  <div class="copy-flash" id="copyFlash">Copié !</div>
+  <button class="key" data-digit="1">1</button>
+  <button class="key" data-digit="2">2</button>
+  <button class="key" data-digit="3">3</button>
 
-  <script src="calculator.js"></script>
+  <button class="key" data-digit="0">0</button>
+  <button class="key" data-digit=".">.</button>
+  <button class="key equals" data-action="calc">=</button>
+
+</div>
+
+<!-- HISTORY -->
+<div class="history-strip" id="historyStrip">
+  <span class="history-label">hist</span>
+</div>
+
+<!-- FLASH -->
+<div id="copyFlash" class="copy-flash"></div>
+
+<script src="calculator.js"></script>
+
 </body>
 </html>
